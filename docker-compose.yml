@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13-alpine
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - django_network
+
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: bash -c "./wait-for-it.sh db:5432 --timeout=60 --strict -- python manage.py makemigrations && python manage.py migrate"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - db
+    networks:
+      - django_network
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: bash -c "./wait-for-it.sh db:5432 --timeout=60 --strict -- python manage.py runserver 0.0.0.0:8080 --nothreading --noreload"
+    volumes:
+      - .:/app
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - migrate
+    networks:
+      - django_network
+
+volumes:
+  postgres_data:
+
+networks:
+  django_network:
