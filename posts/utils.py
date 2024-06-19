@@ -17,4 +17,4 @@ def get_post_image_upload_path(instance, filename: str) -> str:
     """
     ext = filename.split('.')[-1]
     new_filename = f'{uuid.uuid4()}.{ext}'
-    return os.path.join('profile_images', new_filename)
+    return os.path.join('post_images', new_filename)
