@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     # 'social_django',
     'accounts',
     'posts',
+    'security',
 ]
 
 MIDDLEWARE = [
@@ -43,6 +44,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'security.middlewares.RemoveServerHeaderMiddleware',
 ]
 
 ROOT_URLCONF = 'app.urls'
