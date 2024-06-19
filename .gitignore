@@ -4,3 +4,9 @@
 media
 db.sqlite3
 venv
+posts/migrations
+accounts/migrations
+
+app/__pycache__
+posts/__pycache__
+accounts/__pycache__
