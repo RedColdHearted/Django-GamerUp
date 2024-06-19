@@ -10,3 +10,6 @@ accounts/migrations
 app/__pycache__
 posts/__pycache__
 accounts/__pycache__
+
+media/profile_images/*
+media/post_images/*
