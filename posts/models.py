@@ -11,6 +11,9 @@ class ProfilePic(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     image = models.ImageField(upload_to=get_profile_image_upload_path)
 
+    def __str__(self):
+        return f"ProfilePic({self.id})"
+
 
 class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -19,11 +22,17 @@ class Post(models.Model):
     content = models.TextField()
     views = models.IntegerField(default=0)
 
+    def __str__(self):
+        return f"Post({self.id})"
+
 
 class PostPic(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user_post = models.ForeignKey(Post, on_delete=models.CASCADE, null=False, blank=True)
     image = models.ImageField(upload_to=get_post_image_upload_path)
+
+    def __str__(self):
+        return f"PostPic({self.id})"
 
 
 class PostComment(models.Model):
@@ -33,3 +42,6 @@ class PostComment(models.Model):
     created_at = models.DateField(auto_now_add=True)
     content = models.TextField()
     like_counter = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"PostComment({self.id})"
