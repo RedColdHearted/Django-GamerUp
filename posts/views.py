@@ -28,12 +28,10 @@ class PostViewSet(mixins.CreateModelMixin,
                   viewsets.GenericViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly, )
 
     def create(self, request, *args, **kwargs):
         post_data = request.data
-        user = post_data['user']
-
         serializer = PostSerializer(data=post_data)
         if serializer.is_valid():
             serializer.save()
@@ -43,15 +41,12 @@ class PostViewSet(mixins.CreateModelMixin,
 
     def update(self, request, *args, **kwargs):
         post_data = request.data
-        user = post_data['user']
         serializer = PostSerializer(data=post_data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
 
     def delete(self, request, *args, **kwargs):
-        post_data = request.data
-        user = post_data['user']
         instance = self.get_object()
         instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
