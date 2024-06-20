@@ -15,3 +15,5 @@ security/__pycache__
 
 media/profile_images/*
 media/post_images/*
+
+build/*
