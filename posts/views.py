@@ -6,8 +6,10 @@ from rest_framework.response import Response
 from accounts.serializers import CustomUserCreateSerializer
 from posts.serializers import ProfilePicSerializer, PostSerializer, PostPicSerializer, PostCommentSerializer
 from posts.models import UserAccount, ProfilePic, Post, PostPic, PostComment
+from posts.permissions import IsOwnerOrReadOnly
 
 
+# TODO: этот viewset нужен? подумать
 class UserViewSet(mixins.RetrieveModelMixin,
                   viewsets.GenericViewSet):
     queryset = UserAccount.objects.all()
@@ -15,7 +17,11 @@ class UserViewSet(mixins.RetrieveModelMixin,
     permission_classes = (IsAuthenticatedOrReadOnly, )
 
 
-class ProfilePicViewSet(viewsets.ModelViewSet):
+class ProfilePicViewSet(mixins.CreateModelMixin,
+                        mixins.RetrieveModelMixin,
+                        mixins.UpdateModelMixin,
+                        mixins.DestroyModelMixin,
+                        viewsets.GenericViewSet):
     queryset = ProfilePic.objects.all()
     serializer_class = ProfilePicSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -28,45 +34,89 @@ class PostViewSet(mixins.CreateModelMixin,
                   viewsets.GenericViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly, )
 
     def create(self, request, *args, **kwargs):
+        """
+        Creating a post
+        Method : Post
+        api/v1/posts/
+        Headers - {Authorization: JWT <access token>}
+        Body - {
+                "content": <post text content>,
+                "user": "<user id>"
+            }
+        """
         post_data = request.data
         serializer = PostSerializer(data=post_data)
         if serializer.is_valid():
             serializer.save()
-            return Response({'detail': 'пост создан'}, status=status.HTTP_201_CREATED)
+            return Response({'detail': 'Post created', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, *args, **kwargs):
-        post_data = request.data
-        serializer = PostSerializer(data=post_data)
+        """
+        Updating a post
+        Method : Put
+        api/v1/posts/<uuid of post>/
+        Headers - {Authorization: JWT <access token>}
+        Body - {
+                **new post content**
+            }
+        """
+        post_instance = self.get_object()
+        serializer = self.get_serializer(post_instance, data=request.data, partial=False)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete(self, request, *args, **kwargs):
+        """
+        Deleting a post if requesting user is owner of the post
+        Method : Delete
+        api/v1/posts/<uuid of post>/
+        Headers - {Authorization: JWT <access token>}
+        """
         instance = self.get_object()
+        if instance.owner != request.user:
+            return Response(
+                {'detail': 'You are not a the post owner.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
         instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=['get'], detail=True)
     def filter(self, request, pk=None):
+        """
+        Get all post of user
+        Method : Get
+        api/v1/post-comment/<user id>/filter
+        """
         posts = Post.objects.filter(user=pk)
         return Response(PostSerializer(posts, many=True).data)
 
 
-class PostPicViewSet(viewsets.ModelViewSet):
+class PostPicViewSet(mixins.CreateModelMixin,
+                     mixins.RetrieveModelMixin,
+                     mixins.UpdateModelMixin,
+                     mixins.DestroyModelMixin,
+                     viewsets.GenericViewSet):
     queryset = PostPic.objects.all()
     serializer_class = PostPicSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly, )
 
 
-class PostCommentViewSet(viewsets.ModelViewSet):
+class PostCommentViewSet(mixins.CreateModelMixin,
+                         mixins.RetrieveModelMixin,
+                         mixins.UpdateModelMixin,
+                         mixins.DestroyModelMixin,
+                         viewsets.GenericViewSet):
     queryset = PostComment.objects.all()
     serializer_class = PostCommentSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
 
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticatedOrReadOnly])
     def like(self, request, pk=None):
