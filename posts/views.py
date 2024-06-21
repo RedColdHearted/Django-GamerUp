@@ -1,4 +1,7 @@
+import uuid
+
 from rest_framework.decorators import action
+from rest_framework.views import APIView
 from rest_framework import viewsets, status, mixins
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
@@ -68,8 +71,33 @@ class PostCommentViewSet(viewsets.ModelViewSet):
     serializer_class = PostCommentSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticatedOrReadOnly])
+    def like(self, request, pk=None):
+        """
+        Putting like for comment if user not in many-to-many table or disabling like if user in it
+        Method : Post
+        api/v1/post-comment/<uuid of post comment>/like
+        Headers - {Authorization: JWT <access token>}
+        """
+        comment = self.get_object()
+        user = request.user
+        if user in comment.liked_by.all():
+            comment.liked_by.remove(user)
+            comment.like_counter -= 1
+            message = 'Like removed'
+        else:
+            comment.liked_by.add(user)
+            comment.like_counter += 1
+            message = 'Liked'
+        comment.save()
+        return Response({'status': 'success', 'message': message, 'like_counter': comment.like_counter})
+
     @action(methods=['get'], detail=True)
     def filter(self, request, pk=None):
-        posts = PostComment.objects.filter(post=pk)
-        return Response(PostCommentSerializer(posts, many=True).data)
-
+        """
+        Get all comments for post
+        Method : Get
+        api/v1/post-comment/<uuid of post>/filter
+        """
+        user_posts = PostComment.objects.filter(user_post=pk)
+        return Response(PostCommentSerializer(user_posts, many=True).data)
