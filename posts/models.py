@@ -1,10 +1,10 @@
 import uuid
 
 from django.db import models
-from django.db.models import ForeignKey
 
 from accounts.models import UserAccount
 from posts.utils import get_profile_image_upload_path, get_post_image_upload_path
+from posts.validators import validate_zero_or_more
 
 
 class ProfilePic(models.Model):
@@ -21,6 +21,8 @@ class Post(models.Model):
     created_at = models.DateField(auto_now_add=True)
     content = models.TextField()
     views = models.IntegerField(default=0)
+    like_counter = models.IntegerField(default=0, validators=[validate_zero_or_more])
+    liked_by = models.ManyToManyField(UserAccount, related_name='liked_posts', blank=True)
 
     def __str__(self):
         return f"Post({self.id})"
@@ -41,7 +43,7 @@ class PostComment(models.Model):
     user_post = models.ForeignKey(Post, on_delete=models.CASCADE, null=False, blank=True)
     created_at = models.DateField(auto_now_add=True)
     content = models.TextField()
-    like_counter = models.IntegerField(default=0)
+    like_counter = models.IntegerField(default=0, validators=[validate_zero_or_more])
     liked_by = models.ManyToManyField(UserAccount, related_name='liked_comments', blank=True)
 
     def __str__(self):
