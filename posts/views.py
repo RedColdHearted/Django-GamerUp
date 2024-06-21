@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from accounts.serializers import CustomUserCreateSerializer
 from posts.serializers import ProfilePicSerializer, PostSerializer, PostPicSerializer, PostCommentSerializer
 from posts.models import UserAccount, ProfilePic, Post, PostPic, PostComment
-from posts.permissions import IsOwnerOrReadOnly
+from app.permissions import IsOwnerOrReadOnly
 
 
 # TODO: этот viewset нужен? подумать
@@ -17,6 +17,7 @@ class UserViewSet(mixins.RetrieveModelMixin,
     permission_classes = (IsAuthenticatedOrReadOnly, )
 
 
+# TODO: сделать документацию и подробные методы
 class ProfilePicViewSet(mixins.CreateModelMixin,
                         mixins.RetrieveModelMixin,
                         mixins.UpdateModelMixin,
@@ -80,11 +81,6 @@ class PostViewSet(mixins.CreateModelMixin,
         Headers - {Authorization: JWT <access token>}
         """
         instance = self.get_object()
-        if instance.owner != request.user:
-            return Response(
-                {'detail': 'You are not a the post owner.'},
-                status=status.HTTP_403_FORBIDDEN
-            )
         instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -99,6 +95,7 @@ class PostViewSet(mixins.CreateModelMixin,
         return Response(PostSerializer(posts, many=True).data)
 
 
+# TODO: сделать документацию и подробные методы
 class PostPicViewSet(mixins.CreateModelMixin,
                      mixins.RetrieveModelMixin,
                      mixins.UpdateModelMixin,
