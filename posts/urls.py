@@ -1,4 +1,3 @@
-from django.contrib import admin
 from django.urls import path, include
 
 from rest_framework import routers
@@ -10,7 +9,7 @@ router.register(r'users', UserViewSet)
 router.register(r'profiles', ProfilePicViewSet)
 router.register(r'posts', PostViewSet)
 router.register(r'post-pics', PostPicViewSet)
-router.register(r'post-coment', PostCommentViewSet)
+router.register(r'post-comment', PostCommentViewSet)
 
 
 urlpatterns = [
