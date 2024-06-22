@@ -16,3 +16,5 @@ media/profile_images/*
 media/post_images/*
 
 build/*
+
+db.json
