@@ -23,12 +23,12 @@ def get_post_image_upload_path(instance, filename: str) -> str:
     return os.path.join('post_images', new_filename)
 
 
-def get_random_profile_picture():
+def get_random_profile_picture() -> str:
     pic_path = DEFAULT_PROFILE_PICS[randint(0, 5)] + '.png'
     return pic_path
 
 
-def is_not_default_pic(file_name):
+def is_not_default_pic(file_name: str) -> bool:
     if file_name in DEFAULT_PROFILE_PICS:
         return False
     return True
