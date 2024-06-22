@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, PermissionsMixin, BaseUserManager
 
+from app.utils import get_profile_image_upload_path, get_random_profile_picture
+
 
 class UserAccountManager(BaseUserManager):
     def create_user(self, email, username, password=None):
@@ -10,6 +12,7 @@ class UserAccountManager(BaseUserManager):
         email = self.normalize_email(email)
         user = self.model(email=email, username=username)
         user.set_password(password)
+        user.image = get_random_profile_picture()
         user.save()
         return user
 
@@ -33,6 +36,7 @@ class UserAccount(AbstractUser, PermissionsMixin):
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
+    image = models.ImageField(upload_to=get_profile_image_upload_path, blank=True, null=True)
 
     objects = UserAccountManager()
 
@@ -46,4 +50,4 @@ class UserAccount(AbstractUser, PermissionsMixin):
         return self.name
 
     def __str__(self):
-        return self.email
+        return f"{self.email} id - {self.id}"
