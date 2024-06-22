@@ -1,12 +1,6 @@
 from rest_framework import serializers
 
-from posts.models import ProfilePic, Post, PostPic, PostComment
-
-
-class ProfilePicSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProfilePic
-        fields = '__all__'
+from posts.models import Post, PostPic, PostComment
 
 
 class PostSerializer(serializers.ModelSerializer):
