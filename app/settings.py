@@ -156,6 +156,15 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 MEDIA_URL = '/media/'
 
+DEFAULT_PROFILE_PICS = [
+    os.path.join('default_images', 'pic0'),
+    os.path.join('default_images', 'pic1'),
+    os.path.join('default_images', 'pic2'),
+    os.path.join('default_images', 'pic3'),
+    os.path.join('default_images', 'pic4'),
+    os.path.join('default_images', 'pic5'),
+]
+
 STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
@@ -184,7 +193,7 @@ DJOSER = {
     'SET_USERNAME_RETYPE': True,
     'SET_PASSWORD_RETYPE': True,
     'PASSWORD_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}',
-    'USERNAME_RESET_CONFIRM_URL': 'email/reset/confirm/{uid}/{token}',
+    'USERNAME_RESET_CONFIRM_URL': 'email/reset/confirm/{uid}/{token}/',
     'ACTIVATION_URL': 'activate/{uid}/{token}',
     'SEND_ACTIVATION_EMAIL': True,
     'SOCIAL_AUTH_TOKEN_STRATEGY': 'djoser.social.token.jwt.TokenStrategy',
