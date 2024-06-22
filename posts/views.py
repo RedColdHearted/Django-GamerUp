@@ -14,7 +14,7 @@ from app.permissions import IsOwnerOrReadOnly
 from app.utils import is_not_default_pic
 
 
-# TODO: update username, documentation ant unittest
+# TODO: update username, documentation
 class UserViewSet(mixins.RetrieveModelMixin,
                   mixins.UpdateModelMixin,
                   viewsets.GenericViewSet
@@ -65,11 +65,11 @@ class UserViewSet(mixins.RetrieveModelMixin,
             return response
 
 
-# TODO: unittest
 class PostViewSet(mixins.CreateModelMixin,
                   mixins.RetrieveModelMixin,
                   mixins.UpdateModelMixin,
                   mixins.DestroyModelMixin,
+                  mixins.ListModelMixin,
                   viewsets.GenericViewSet,
                   LikeMixin
                   ):
@@ -84,6 +84,7 @@ class PostViewSet(mixins.CreateModelMixin,
         api/v1/posts/
         Headers - {Authorization: JWT <access token>}
         Body - {
+                "title": <post text title>,
                 "content": <post text content>,
                 "user": "<user id>"
             }
@@ -125,17 +126,16 @@ class PostViewSet(mixins.CreateModelMixin,
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=['get'], detail=True)
-    def filter(self, request, pk=None):
+    def get_by_user(self, request, pk=None):
         """
         Get all post of user
         Method : Get
-        api/v1/post-comment/<user_id>/filter
+        api/v1/posts/<user_id>/get_by_user
         """
         posts = Post.objects.filter(user=pk)
         return Response(PostSerializer(posts, many=True).data)
 
 
-# TODO: unittest
 class PostCommentViewSet(mixins.CreateModelMixin,
                          mixins.RetrieveModelMixin,
                          mixins.UpdateModelMixin,
@@ -152,13 +152,13 @@ class PostCommentViewSet(mixins.CreateModelMixin,
         """
         Get all comments for post
         Method : Get
-        api/v1/post-comment/<post_uuid>/filter
+        api/v1/comments/<post_uuid>/filter
         """
         user_posts = PostComment.objects.filter(user_post=pk)
         return Response(PostCommentSerializer(user_posts, many=True).data)
 
 
-# TODO: documentation ant unittest
+# TODO: documentation
 class PostPicViewSet(mixins.CreateModelMixin,
                      mixins.RetrieveModelMixin,
                      mixins.UpdateModelMixin,
