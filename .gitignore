@@ -1,7 +1,6 @@
 .env
 .idea
 .git
-media
 db.sqlite3
 venv
 posts/migrations
