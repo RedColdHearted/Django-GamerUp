@@ -26,7 +26,7 @@ class UserViewSet(mixins.RetrieveModelMixin,
     @action(detail=True, methods=['get', 'post'], url_path='avatar')
     def change_avatar(self, request, pk=None):
         """
-        Allow to put user's avatar or get user avatar, if user already have non default avatar, it will be deleted
+        Allow to post user's avatar or get user avatar, if user already have non default avatar, it will be deleted
         api/v1/users/<user_id>/avatar/
         Methods: POST, GET
         if POST:
