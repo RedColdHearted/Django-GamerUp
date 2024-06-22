@@ -3,22 +3,15 @@ import uuid
 from django.db import models
 
 from accounts.models import UserAccount
-from posts.utils import get_profile_image_upload_path, get_post_image_upload_path
+from app.utils import get_post_image_upload_path
 from posts.validators import validate_zero_or_more
-
-
-class ProfilePic(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    image = models.ImageField(upload_to=get_profile_image_upload_path)
-
-    def __str__(self):
-        return f"ProfilePic({self.id})"
 
 
 class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(UserAccount, on_delete=models.CASCADE)
     created_at = models.DateField(auto_now_add=True)
+    title = models.CharField(max_length=255, null=False, blank=True)
     content = models.TextField()
     views = models.IntegerField(default=0)
     like_counter = models.IntegerField(default=0, validators=[validate_zero_or_more])
