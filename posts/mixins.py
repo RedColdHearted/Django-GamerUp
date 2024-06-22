@@ -22,10 +22,10 @@ class LikeMixin(generics.GenericAPIView):
         if user in obj.liked_by.all():
             obj.liked_by.remove(user)
             obj.like_counter -= 1
-            message = 'Like removed'
+            message = 'like removed'
         else:
             obj.liked_by.add(user)
             obj.like_counter += 1
-            message = 'Liked'
+            message = 'liked'
         obj.save()
         return Response({'status': 'success', 'message': message, 'like_counter': obj.like_counter})
