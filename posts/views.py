@@ -1,38 +1,78 @@
+import os
+
+from django.http import HttpResponse
 from rest_framework.decorators import action
 from rest_framework import viewsets, status, mixins
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
 from accounts.serializers import CustomUserCreateSerializer
-from posts.serializers import ProfilePicSerializer, PostSerializer, PostPicSerializer, PostCommentSerializer
-from posts.models import UserAccount, ProfilePic, Post, PostPic, PostComment
+from posts.serializers import PostSerializer, PostPicSerializer, PostCommentSerializer
+from posts.models import UserAccount, Post, PostPic, PostComment
+from posts.mixins import LikeMixin
 from app.permissions import IsOwnerOrReadOnly
+from app.utils import is_not_default_pic
 
 
-# TODO: этот viewset нужен? подумать
+# TODO: update username, documentation ant unittest
 class UserViewSet(mixins.RetrieveModelMixin,
-                  viewsets.GenericViewSet):
+                  mixins.UpdateModelMixin,
+                  viewsets.GenericViewSet
+                  ):
     queryset = UserAccount.objects.all()
     serializer_class = CustomUserCreateSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, )
 
+    @action(detail=True, methods=['get', 'post'], url_path='avatar')
+    def change_avatar(self, request, pk=None):
+        """
+        Allow to put user's avatar or get user avatar, if user already have non default avatar, it will be deleted
+        api/v1/users/<user_id>/avatar/
+        Methods: POST, GET
+        if POST:
+            Headers - {
+                    Content-Type: multipart/form-data; boundary=<calculated when request is sent>
+                    Authorization: JWT <access token>
+                }
+            Body - {
+                    **form-data**
+                    "avatar": <avatar-file> (type file)
+                }
+        """
+        user = self.get_object()
 
-# TODO: сделать документацию и подробные методы
-class ProfilePicViewSet(mixins.CreateModelMixin,
-                        mixins.RetrieveModelMixin,
-                        mixins.UpdateModelMixin,
-                        mixins.DestroyModelMixin,
-                        viewsets.GenericViewSet):
-    queryset = ProfilePic.objects.all()
-    serializer_class = ProfilePicSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+        if request.method == 'POST':
+            if user.id == request.user.id:
+                file = request.FILES.get('avatar')
+                if not file:
+                    return Response({"avatar": "No file provided"}, status=status.HTTP_400_BAD_REQUEST)
+                old_avatar_path = user.image.path if user.image else None
+                old_avatar_name = user.image.name.split('/')[1] if user.image else None
+
+                user.image = file
+                user.save()
+
+                if is_not_default_pic(old_avatar_name):
+                    os.remove(old_avatar_path)
+                return Response({"status": "avatar set"}, status=status.HTTP_200_OK)
+            return Response({"avatar": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if request.method == 'GET':
+            if not user.image:
+                return Response({"avatar": "No image found"}, status=status.HTTP_404_NOT_FOUND)
+            response = HttpResponse(user.image, content_type='image/jpeg')
+            response['Content-Disposition'] = f'attachment; filename="{user.image.name}"'
+            return response
 
 
+# TODO: unittest
 class PostViewSet(mixins.CreateModelMixin,
                   mixins.RetrieveModelMixin,
                   mixins.UpdateModelMixin,
                   mixins.DestroyModelMixin,
-                  viewsets.GenericViewSet):
+                  viewsets.GenericViewSet,
+                  LikeMixin
+                  ):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly, )
@@ -77,7 +117,7 @@ class PostViewSet(mixins.CreateModelMixin,
         """
         Deleting a post if requesting user is owner of the post
         Method : Delete
-        api/v1/posts/<uuid of post>/
+        api/v1/posts/<post_uuid>/
         Headers - {Authorization: JWT <access token>}
         """
         instance = self.get_object()
@@ -89,13 +129,36 @@ class PostViewSet(mixins.CreateModelMixin,
         """
         Get all post of user
         Method : Get
-        api/v1/post-comment/<user id>/filter
+        api/v1/post-comment/<user_id>/filter
         """
         posts = Post.objects.filter(user=pk)
         return Response(PostSerializer(posts, many=True).data)
 
 
-# TODO: сделать документацию и подробные методы
+# TODO: unittest
+class PostCommentViewSet(mixins.CreateModelMixin,
+                         mixins.RetrieveModelMixin,
+                         mixins.UpdateModelMixin,
+                         mixins.DestroyModelMixin,
+                         viewsets.GenericViewSet,
+                         LikeMixin
+                         ):
+    queryset = PostComment.objects.all()
+    serializer_class = PostCommentSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
+
+    @action(methods=['get'], detail=True)
+    def filter(self, request, pk=None):
+        """
+        Get all comments for post
+        Method : Get
+        api/v1/post-comment/<post_uuid>/filter
+        """
+        user_posts = PostComment.objects.filter(user_post=pk)
+        return Response(PostCommentSerializer(user_posts, many=True).data)
+
+
+# TODO: documentation ant unittest
 class PostPicViewSet(mixins.CreateModelMixin,
                      mixins.RetrieveModelMixin,
                      mixins.UpdateModelMixin,
@@ -104,44 +167,3 @@ class PostPicViewSet(mixins.CreateModelMixin,
     queryset = PostPic.objects.all()
     serializer_class = PostPicSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly, )
-
-
-class PostCommentViewSet(mixins.CreateModelMixin,
-                         mixins.RetrieveModelMixin,
-                         mixins.UpdateModelMixin,
-                         mixins.DestroyModelMixin,
-                         viewsets.GenericViewSet):
-    queryset = PostComment.objects.all()
-    serializer_class = PostCommentSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
-
-    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticatedOrReadOnly])
-    def like(self, request, pk=None):
-        """
-        Putting like for comment if user not in many-to-many table or disabling like if user in it
-        Method : Post
-        api/v1/post-comment/<uuid of post comment>/like
-        Headers - {Authorization: JWT <access token>}
-        """
-        comment = self.get_object()
-        user = request.user
-        if user in comment.liked_by.all():
-            comment.liked_by.remove(user)
-            comment.like_counter -= 1
-            message = 'Like removed'
-        else:
-            comment.liked_by.add(user)
-            comment.like_counter += 1
-            message = 'Liked'
-        comment.save()
-        return Response({'status': 'success', 'message': message, 'like_counter': comment.like_counter})
-
-    @action(methods=['get'], detail=True)
-    def filter(self, request, pk=None):
-        """
-        Get all comments for post
-        Method : Get
-        api/v1/post-comment/<uuid of post>/filter
-        """
-        user_posts = PostComment.objects.filter(user_post=pk)
-        return Response(PostCommentSerializer(user_posts, many=True).data)
