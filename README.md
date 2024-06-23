@@ -6,6 +6,8 @@ The project features a well-organized file structure and substantial unit test c
 
 Additionally, Dockerfile and docker-compose are configured for the project, making it easy to launch and test the application in isolated containers.
 
+The React repo: https://github.com/RedColdHearted/React-GamerUp
+
 ## Installation and Launch
 
 ### Requirements
