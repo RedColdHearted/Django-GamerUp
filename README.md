@@ -53,7 +53,7 @@ pip install -r requirements.txt
 6. If using PostgreSQL, specify the secrets in the .env file:
 
 ```env
-SECRET_KEY='django-insecure-%$#14b-8=*+8z@rlh*af=)t_9#7x4$zzp)mute-vh06wt+wghp'
+SECRET_KEY='django_secret_key'
 # Mode of operation: dev|production
 DJANGO_ENV='dev' 
 
