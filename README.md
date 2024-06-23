@@ -54,7 +54,8 @@ pip install -r requirements.txt
 
 ```env
 SECRET_KEY='django-insecure-%$#14b-8=*+8z@rlh*af=)t_9#7x4$zzp)mute-vh06wt+wghp'
-DJANGO_ENV='dev' # Mode of operation: dev|production
+# Mode of operation: dev|production
+DJANGO_ENV='dev' 
 
 EMAIL_HOST_USER='google_mail_for_sending_emails'
 EMAIL_HOST_PASSWORD='application_password'
