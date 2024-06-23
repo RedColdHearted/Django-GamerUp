@@ -1,6 +1,4 @@
-from .settings import *
-
-DEBUG = True
+from app.settings.dev import *
 
 DATABASES = {
    'default': {
