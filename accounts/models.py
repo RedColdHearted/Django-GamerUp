@@ -1,3 +1,5 @@
+from rest_framework_simplejwt.tokens import RefreshToken
+
 from django.db import models
 from django.contrib.auth.models import AbstractUser, PermissionsMixin, BaseUserManager
 
@@ -43,11 +45,21 @@ class UserAccount(AbstractUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
+    def __str__(self):
+        return f"{self.email} id - {self.id}"
+
+    @staticmethod
+    def in_test_api_auth(client, jwt_token):
+        """authorize user, creating Authorization header with jwt_token (using for tests)"""
+        client.credentials(HTTP_AUTHORIZATION='JWT ' + jwt_token)
+
+    def get_jwt_token_for_user(self):
+        """creating access jwt token for user"""
+        refresh = RefreshToken.for_user(self)
+        return str(refresh.access_token)
+
     def get_full_name(self):
         return self.name
 
     def get_short_name(self):
         return self.name
-
-    def __str__(self):
-        return f"{self.email} id - {self.id}"
