@@ -32,4 +32,3 @@ def is_not_default_pic(file_name: str) -> bool:
     if file_name in DEFAULT_PROFILE_PICS:
         return False
     return True
-
