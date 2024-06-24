@@ -9,4 +9,3 @@ class RemoveServerHeaderMiddleware:
         response = self.get_response(request)
         response.__setitem__('Server', 'lol')
         return response
-
