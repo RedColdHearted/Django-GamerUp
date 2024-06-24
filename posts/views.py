@@ -14,7 +14,7 @@ from app.permissions import IsOwnerOrReadOnly
 from app.utils import is_not_default_pic
 
 
-# TODO: update username, documentation
+# TODO: update username, documentation and unittests
 class UserViewSet(mixins.RetrieveModelMixin,
                   mixins.UpdateModelMixin,
                   viewsets.GenericViewSet
@@ -136,6 +136,7 @@ class PostViewSet(mixins.CreateModelMixin,
         return Response(PostSerializer(posts, many=True).data)
 
 
+# TODO: unittests
 class PostCommentViewSet(mixins.CreateModelMixin,
                          mixins.RetrieveModelMixin,
                          mixins.UpdateModelMixin,
@@ -158,7 +159,7 @@ class PostCommentViewSet(mixins.CreateModelMixin,
         return Response(PostCommentSerializer(user_posts, many=True).data)
 
 
-# TODO: documentation
+# TODO: documentation, unittests
 class PostPicViewSet(mixins.CreateModelMixin,
                      mixins.RetrieveModelMixin,
                      mixins.UpdateModelMixin,
