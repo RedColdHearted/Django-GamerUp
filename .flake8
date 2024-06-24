@@ -2,13 +2,21 @@
   max-line-length = 120
   exclude =
       .git,
+
+      app/settings/__init__.py,
+      app/settings/dev.py,
+      app/settings/production.py,
+      app/settings/unit_test.py,
+
+      app/urls/__init__.py,
+      app/urls/dev.py,
+      app/urls/production.py,
+
       manage.py,
-      __pycache__,
+      *migrations,
+      *__pycache__,
+      *.pyc,
       old,
       build,
       dist,
       venv
-  ignore =
-    F841,
-    E123,
-    E126,
