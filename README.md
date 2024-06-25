@@ -62,9 +62,6 @@ DJANGO_ENV='dev'
 EMAIL_HOST_USER='google_mail_for_sending_emails'
 EMAIL_HOST_PASSWORD='application_password'
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY='authentication_key'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET='secret_key'
-
 # For PostgreSQL connection
 DB_ENGINE=django.db.backends.postgresql
 DB_NAME='db_name'
