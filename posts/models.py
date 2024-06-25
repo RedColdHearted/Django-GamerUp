@@ -8,6 +8,9 @@ from posts.validators import validate_zero_or_more
 
 
 class Post(models.Model):
+    class Meta:
+        ordering = ['created_at']
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(UserAccount, on_delete=models.CASCADE)
     created_at = models.DateField(auto_now_add=True)
@@ -20,9 +23,6 @@ class Post(models.Model):
     def __str__(self):
         return f"Post({self.id})"
 
-    class Meta:
-        ordering = ['created_at']
-
 
 class PostPic(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -34,6 +34,9 @@ class PostPic(models.Model):
 
 
 class PostComment(models.Model):
+    class Meta:
+        ordering = ['like_counter']
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     user = models.ForeignKey(UserAccount, on_delete=models.CASCADE, null=False, blank=True)
     user_post = models.ForeignKey(Post, on_delete=models.CASCADE, null=False, blank=True)
