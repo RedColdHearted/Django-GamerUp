@@ -19,7 +19,7 @@ class UserViewSet(mixins.RetrieveModelMixin,
                   ):
     queryset = UserAccount.objects.all()
     serializer_class = CustomUserCreateSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     @action(detail=True, methods=['get', 'post'], url_path='avatar')
     def change_avatar(self, request, pk=None):
@@ -68,7 +68,7 @@ class PostViewSet(mixins.CreateModelMixin,
                   ):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly,)
 
     def create(self, request, *args, **kwargs):
         """
@@ -135,6 +135,7 @@ class PostCommentViewSet(mixins.CreateModelMixin,
                          mixins.UpdateModelMixin,
                          mixins.DestroyModelMixin,
                          viewsets.GenericViewSet,
+                         ViewsCounterMixin,
                          LikeMixin
                          ):
     queryset = PostComment.objects.all()
@@ -142,7 +143,7 @@ class PostCommentViewSet(mixins.CreateModelMixin,
     permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
 
     @action(methods=['get'], detail=True)
-    def get_by_id(self, request, pk=None):
+    def get_by_post(self, request, pk=None):
         """
         Get all comments for post
         Method : Get
@@ -160,4 +161,4 @@ class PostPicViewSet(mixins.CreateModelMixin,
                      viewsets.GenericViewSet):
     queryset = PostPic.objects.all()
     serializer_class = PostPicSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly,)
