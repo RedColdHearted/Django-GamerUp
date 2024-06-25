@@ -1,9 +1,11 @@
+import os
+
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from django.db import models
 from django.contrib.auth.models import AbstractUser, PermissionsMixin, BaseUserManager
 
-from app.utils import get_profile_image_upload_path, get_random_profile_picture
+from app.utils import get_profile_image_upload_path, get_random_profile_picture, is_not_default_pic
 
 
 class UserAccountManager(BaseUserManager):
@@ -57,6 +59,17 @@ class UserAccount(AbstractUser, PermissionsMixin):
         """creating access jwt token for user"""
         refresh = RefreshToken.for_user(self)
         return str(refresh.access_token)
+
+    def set_image(self, new_image):
+        old_avatar_path = self.image.path if self.image else None
+        old_avatar_name = self.image.name.split('/')[1] if self.image else None
+        self.image = new_image
+        self.save()
+        if is_not_default_pic(old_avatar_name):
+            os.remove(old_avatar_path)
+
+    def get_image(self):
+        return self.image
 
     def get_full_name(self):
         return self.name
