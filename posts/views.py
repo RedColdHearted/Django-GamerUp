@@ -1,17 +1,15 @@
-import os
-
-from django.http import HttpResponse
 from rest_framework.decorators import action
 from rest_framework import viewsets, status, mixins
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
+from django.http import HttpResponse
+
 from accounts.serializers import CustomUserCreateSerializer
 from posts.serializers import PostSerializer, PostPicSerializer, PostCommentSerializer
 from posts.models import UserAccount, Post, PostPic, PostComment
-from posts.mixins import LikeMixin
+from posts.mixins import LikeMixin, ViewsCounterMixin
 from app.permissions import IsOwnerOrReadOnly
-from app.utils import is_not_default_pic
 
 
 # TODO: update username, documentation and unittests
@@ -45,23 +43,17 @@ class UserViewSet(mixins.RetrieveModelMixin,
             if user.id == request.user.id:
                 file = request.FILES.get('avatar')
                 if not file:
-                    return Response({"avatar": "No file provided"}, status=status.HTTP_400_BAD_REQUEST)
-                old_avatar_path = user.image.path if user.image else None
-                old_avatar_name = user.image.name.split('/')[1] if user.image else None
-
-                user.image = file
-                user.save()
-
-                if is_not_default_pic(old_avatar_name):
-                    os.remove(old_avatar_path)
-                return Response({"status": "avatar set"}, status=status.HTTP_200_OK)
-            return Response({"avatar": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({"detail": "No file provided"}, status=status.HTTP_400_BAD_REQUEST)
+                user.set_image(file)
+                return Response({"detail": "avatar set"}, status=status.HTTP_200_OK)
+            return Response({"detail": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
 
         if request.method == 'GET':
-            if not user.image:
-                return Response({"avatar": "No image found"}, status=status.HTTP_404_NOT_FOUND)
-            response = HttpResponse(user.image, content_type='image/jpeg')
-            response['Content-Disposition'] = f'attachment; filename="{user.image.name}"'
+            image = user.get_image()
+            if not image:
+                return Response({"detail": "No image found"}, status=status.HTTP_404_NOT_FOUND)
+            response = HttpResponse(image, content_type='image/jpeg')
+            response['Content-Disposition'] = f'attachment; filename="{image.name}"'
             return response
 
 
@@ -71,6 +63,7 @@ class PostViewSet(mixins.CreateModelMixin,
                   mixins.DestroyModelMixin,
                   mixins.ListModelMixin,
                   viewsets.GenericViewSet,
+                  ViewsCounterMixin,
                   LikeMixin
                   ):
     queryset = Post.objects.all()
@@ -149,14 +142,14 @@ class PostCommentViewSet(mixins.CreateModelMixin,
     permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
 
     @action(methods=['get'], detail=True)
-    def filter(self, request, pk=None):
+    def get_by_id(self, request, pk=None):
         """
         Get all comments for post
         Method : Get
-        api/v1/comments/<post_uuid>/filter
+        api/v1/comments/<post_uuid>/get_by_post
         """
-        user_posts = PostComment.objects.filter(user_post=pk)
-        return Response(PostCommentSerializer(user_posts, many=True).data)
+        comments = PostComment.objects.filter(user_post=pk)
+        return Response(PostCommentSerializer(comments, many=True).data)
 
 
 # TODO: documentation, unittests
