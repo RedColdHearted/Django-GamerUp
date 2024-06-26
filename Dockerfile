@@ -22,11 +22,10 @@ COPY . /app/
 # Устанавливаем переменные окружения для Django
 ENV PYTHONUNBUFFERED=1
 
-# Создаём директорию для медиа файлов
-RUN mkdir -p /app/media
-
 # Открываем порт 8000 для доступа к приложению
 EXPOSE 8000
 
 # Команда запускается при старте контейнера
-CMD ["gunicorn", "app.wsgi:application"]
+# CMD ["gunicorn", "app.wsgi:application"]
+
+ENTRYPOINT ["/app/entrypoint.sh"]
