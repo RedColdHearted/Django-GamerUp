@@ -1,6 +1,9 @@
 #!/bin/sh
 
-python manage.py makemigrations
+echo 'yes'| python manage.py flush
+
+python manage.py makemigrations accounts
+python manage.py makemigrations posts
 
 # Выполняем миграции
 python manage.py migrate
