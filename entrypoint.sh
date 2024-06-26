@@ -1,12 +1,11 @@
 #!/bin/sh
 
-echo 'yes'| python manage.py flush
-
+# making migrations
 python manage.py makemigrations accounts
 python manage.py makemigrations posts
 
-# Выполняем миграции
+# migrate
 python manage.py migrate
 
-# Запускаем сервер
+# run
 exec gunicorn 'app.wsgi:application'
