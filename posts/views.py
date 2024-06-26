@@ -129,7 +129,6 @@ class PostViewSet(mixins.CreateModelMixin,
         return Response(PostSerializer(posts, many=True).data)
 
 
-# TODO: unittests
 class CommentViewSet(mixins.CreateModelMixin,
                      mixins.RetrieveModelMixin,
                      mixins.UpdateModelMixin,
@@ -155,11 +154,11 @@ class CommentViewSet(mixins.CreateModelMixin,
 
 
 # TODO: documentation, unittests
-class PostPicViewSet(mixins.CreateModelMixin,
-                     mixins.RetrieveModelMixin,
-                     mixins.UpdateModelMixin,
-                     mixins.DestroyModelMixin,
-                     viewsets.GenericViewSet):
+class PostImagesViewSet(mixins.CreateModelMixin,
+                        mixins.RetrieveModelMixin,
+                        mixins.UpdateModelMixin,
+                        mixins.DestroyModelMixin,
+                        viewsets.GenericViewSet):
     queryset = PostImage.objects.all()
     serializer_class = PostPicSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly,)
