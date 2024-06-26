@@ -25,19 +25,19 @@ class PostViewSetTests(APITestCase, SetUpFabric):
         self.views1_url = reverse('posts-views-counter', kwargs={'pk': self.post1.pk})
         self.views2_url = reverse('posts-views-counter', kwargs={'pk': self.post2.pk})
 
-    def test_list_posts(self):
+    def test_list(self):
         """test: get all posts"""
         response = self.client.get(self.list_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 4)
 
-    def test_detail_posts(self):
+    def test_detail(self):
         """test: get post1 by id"""
         response = self.client.get(self.post1_detail_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertDictEqual(response.data, PostSerializer(self.post1).data)
 
-    def test_create_posts(self):
+    def test_create(self):
         """test: creating post as user1"""
         self.user1.in_test_api_auth(self.client, self.token1)
         data = {'user': 1, 'title': 'some_title', 'content': 'some_content'}
@@ -45,7 +45,7 @@ class PostViewSetTests(APITestCase, SetUpFabric):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Post.objects.count(), 3)
 
-    def test_update_posts(self):
+    def test_update(self):
         """test: updating user's post"""
         # user1
         self.user1.in_test_api_auth(self.client, self.token1)
@@ -62,7 +62,7 @@ class PostViewSetTests(APITestCase, SetUpFabric):
         response = self.client.put(self.post1_detail_url, data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_delete_posts(self):
+    def test_delete(self):
         """test: deleting user's post"""
         # user2
         self.user2.in_test_api_auth(self.client, self.token2)
@@ -76,7 +76,7 @@ class PostViewSetTests(APITestCase, SetUpFabric):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Post.objects.count(), 1)
 
-    def test_get_by_user_posts(self):
+    def test_get_by_user(self):
         """test: get all user's posts"""
         # user1
         response = self.client.get(self.get_by_user1_url)
@@ -88,7 +88,7 @@ class PostViewSetTests(APITestCase, SetUpFabric):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_like_posts(self):
+    def test_like(self):
         """test: post liking"""
         # user1
         self.user1.in_test_api_auth(self.client, self.token1)
@@ -105,7 +105,7 @@ class PostViewSetTests(APITestCase, SetUpFabric):
         self.assertIn(self.user1, self.post1.liked_by.all())
         self.assertIn(self.user2, self.post1.liked_by.all())
 
-    def test_views_counter_posts(self):
+    def test_views_counter(self):
         """test: post viewing"""
         # user1
         self.user1.in_test_api_auth(self.client, self.token1)
