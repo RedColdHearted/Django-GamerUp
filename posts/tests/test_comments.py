@@ -3,7 +3,7 @@ from rest_framework.test import APITestCase
 
 from django.urls import reverse
 
-from posts.models import PostComment
+from posts.models import Comment
 from posts.serializers import PostCommentSerializer
 from posts.tests.setup_fabric import SetUpFabric
 
@@ -40,7 +40,7 @@ class CommentsViewSetTests(APITestCase, SetUpFabric):
         data = {'user': 1, 'user_post': self.post1.id, 'like_counter': 100, 'content': 'some_content'}
         response = self.client.post(self.create_url, data=data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assertEqual(PostComment.objects.count(), 3)
+        self.assertEqual(Comment.objects.count(), 3)
 
     def test_update(self):
         """test: updating user's comment"""

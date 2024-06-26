@@ -7,7 +7,7 @@ from django.http import HttpResponse
 
 from accounts.serializers import CustomUserCreateSerializer
 from posts.serializers import PostSerializer, PostPicSerializer, PostCommentSerializer
-from posts.models import UserAccount, Post, PostPic, PostComment
+from posts.models import UserAccount, Post, PostImage, Comment
 from posts.mixins import LikeMixin, ViewsCounterMixin
 from app.permissions import IsOwnerOrReadOnly
 
@@ -138,7 +138,8 @@ class PostCommentViewSet(mixins.CreateModelMixin,
                          ViewsCounterMixin,
                          LikeMixin
                          ):
-    queryset = PostComment.objects.all()
+    # FIXME: change update mixin to not allow edit PostComment.user and PostComment.user_post fields
+    queryset = Comment.objects.all()
     serializer_class = PostCommentSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
 
@@ -149,7 +150,7 @@ class PostCommentViewSet(mixins.CreateModelMixin,
         Method : Get
         api/v1/comments/<post_uuid>/get_by_post
         """
-        comments = PostComment.objects.filter(user_post=pk)
+        comments = Comment.objects.filter(user_post=pk)
         return Response(PostCommentSerializer(comments, many=True).data)
 
 
@@ -159,6 +160,6 @@ class PostPicViewSet(mixins.CreateModelMixin,
                      mixins.UpdateModelMixin,
                      mixins.DestroyModelMixin,
                      viewsets.GenericViewSet):
-    queryset = PostPic.objects.all()
+    queryset = PostImage.objects.all()
     serializer_class = PostPicSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly,)

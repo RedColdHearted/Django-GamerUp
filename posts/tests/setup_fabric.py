@@ -1,5 +1,5 @@
 from accounts.models import UserAccount
-from posts.models import Post, PostComment
+from posts.models import Post, Comment
 
 
 class SetUpFabric:
@@ -50,12 +50,12 @@ class SetUpFabric:
         self.post2 = self.__dict__.get('post2')
 
         if self.post1 and self.post2:
-            self.comment1 = PostComment(
+            self.comment1 = Comment(
                 user=self.post1.user,
                 user_post=self.post1,
                 content='test'
             )
-            self.comment2 = PostComment(
+            self.comment2 = Comment(
                 user=self.post2.user,
                 user_post=self.post2,
                 content='test'
