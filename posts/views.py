@@ -130,14 +130,14 @@ class PostViewSet(mixins.CreateModelMixin,
 
 
 # TODO: unittests
-class PostCommentViewSet(mixins.CreateModelMixin,
-                         mixins.RetrieveModelMixin,
-                         mixins.UpdateModelMixin,
-                         mixins.DestroyModelMixin,
-                         viewsets.GenericViewSet,
-                         ViewsCounterMixin,
-                         LikeMixin
-                         ):
+class CommentViewSet(mixins.CreateModelMixin,
+                     mixins.RetrieveModelMixin,
+                     mixins.UpdateModelMixin,
+                     mixins.DestroyModelMixin,
+                     viewsets.GenericViewSet,
+                     ViewsCounterMixin,
+                     LikeMixin
+                     ):
     # FIXME: change update mixin to not allow edit PostComment.user and PostComment.user_post fields
     queryset = Comment.objects.all()
     serializer_class = PostCommentSerializer
