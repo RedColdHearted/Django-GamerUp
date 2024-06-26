@@ -4,3 +4,10 @@ DEBUG = False
 ALLOWED_HOSTS = ['*']
 
 SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'] = timedelta(minutes=5)
+
+DATABASES = {
+   'default': {
+       'ENGINE': 'django.db.backends.sqlite3',
+       'NAME': 'db.sqlite3',
+   }
+}
