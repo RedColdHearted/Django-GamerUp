@@ -1,1 +1,1 @@
-web: gunicorn 'app.wsgi:application'
+web: python manage.py makemigrations && python manage.py migrate && gunicorn 'app.wsgi:application'
