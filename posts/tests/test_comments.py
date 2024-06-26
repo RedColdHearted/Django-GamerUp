@@ -21,8 +21,8 @@ class CommentsViewSetTests(APITestCase, SetUpFabric):
         self.comment1_detail_url = reverse('comments-detail', kwargs={'pk': self.comment1.pk})
 
         self.comment2_detail_url = reverse('comments-detail', kwargs={'pk': self.comment2.pk})
-        self.get_by_user1_url = reverse('comments-get-by-post', kwargs={'pk': self.user1.pk})
-        self.get_by_user2_url = reverse('comments-get-by-post', kwargs={'pk': self.user2.pk})
+        self.get_by_post1_url = reverse('comments-get-by-post', kwargs={'pk': self.post1.pk})
+        self.get_by_post2_url = reverse('comments-get-by-post', kwargs={'pk': self.post2.pk})
         self.like1_url = reverse('comments-like', kwargs={'pk': self.comment1.pk})
         self.like2_url = reverse('comments-like', kwargs={'pk': self.comment2.pk})
         self.views1_url = reverse('comments-views-counter', kwargs={'pk': self.comment1.pk})
@@ -58,62 +58,47 @@ class CommentsViewSetTests(APITestCase, SetUpFabric):
         data = {'user': self.user2.id, 'title': 'updated title', 'content': 'updated content'}
         response = self.client.put(self.comment1_detail_url, data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-    #
-    # def test_delete(self):
-    #     """test: deleting user's post"""
-    #     # user2
-    #     self.user2.in_test_api_auth(self.client, self.token2)
-    #     response = self.client.delete(self.post1_detail_url)
-    #     self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-    #     self.assertEqual(Post.objects.count(), 2)
-    #
-    #     # user1
-    #     self.user1.in_test_api_auth(self.client, self.token1)
-    #     response = self.client.delete(self.post1_detail_url)
-    #     self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-    #     self.assertEqual(Post.objects.count(), 1)
-    #
-    # def test_get_by_user(self):
-    #     """test: get all user's posts"""
-    #     # user1
-    #     response = self.client.get(self.get_by_user1_url)
-    #     self.assertEqual(len(response.data), 1)
-    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-    #
-    #     # user2
-    #     response = self.client.get(self.get_by_user2_url)
-    #     self.assertEqual(len(response.data), 1)
-    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-    #
-    # def test_like(self):
-    #     """test: post liking"""
-    #     # user1
-    #     self.user1.in_test_api_auth(self.client, self.token1)
-    #     response = self.client.post(self.like1_url)
-    #     self.post1.refresh_from_db()
-    #     self.assertEqual(response.data['like_counter'], self.post1.like_counter)
-    #
-    #     # user2
-    #     self.user2.in_test_api_auth(self.client, self.token2)
-    #     response = self.client.post(self.like1_url)
-    #     self.post1.refresh_from_db()
-    #     self.assertEqual(response.data['like_counter'], self.post1.like_counter)
-    #
-    #     self.assertIn(self.user1, self.post1.liked_by.all())
-    #     self.assertIn(self.user2, self.post1.liked_by.all())
-    #
-    # def test_views_counter(self):
-    #     """test: post viewing"""
-    #     # user1
-    #     self.user1.in_test_api_auth(self.client, self.token1)
-    #     self.client.post(self.views1_url)
-    #
-    #     # user 2
-    #     self.user2.in_test_api_auth(self.client, self.token2)
-    #     self.client.post(self.views2_url)
-    #
-    #     self.post1.refresh_from_db()
-    #     self.post2.refresh_from_db()
-    #
-    #     self.assertEqual(self.post1.views, 1)
-    #     self.assertEqual(self.post2.views, 1)
+
+    def test_delete(self):
+        """test: deleting user's comment"""
+        # user2
+        self.user2.in_test_api_auth(self.client, self.token2)
+        response = self.client.delete(self.comment1_detail_url)
+        self.assertEqual(Comment.objects.count(), 2)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # user1
+        self.user1.in_test_api_auth(self.client, self.token1)
+        response = self.client.delete(self.comment1_detail_url)
+        self.assertEqual(Comment.objects.count(), 1)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_get_by_post(self):
+        """test: get all post's comments"""
+
+        # post1
+        response = self.client.get(self.get_by_post1_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+        # post2
+        response = self.client.get(self.get_by_post2_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+    def test_like(self):
+        """test: comment liking"""
+        # user1
+        self.user1.in_test_api_auth(self.client, self.token1)
+        response = self.client.post(self.like1_url)
+        self.comment1.refresh_from_db()
+        self.assertEqual(response.data['like_counter'], self.comment1.like_counter)
+
+        # user2
+        self.user2.in_test_api_auth(self.client, self.token2)
+        response = self.client.post(self.like1_url)
+        self.comment1.refresh_from_db()
+        self.assertEqual(response.data['like_counter'], self.comment1.like_counter)
+
+        self.assertIn(self.user1, self.comment1.liked_by.all())
+        self.assertIn(self.user2, self.comment1.liked_by.all())
