@@ -28,4 +28,7 @@ EXPOSE 8000
 # Команда запускается при старте контейнера
 # CMD ["gunicorn", "app.wsgi:application"]
 
+COPY entrypoint.sh /app/
+RUN chmod +x /app/entrypoint.sh
+
 ENTRYPOINT ["/app/entrypoint.sh"]
