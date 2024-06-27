@@ -1,3 +1,7 @@
+class UserUsernameException(Exception):
+    pass
+
+
 class CommentTestCaseException(Exception):
     pass
 
