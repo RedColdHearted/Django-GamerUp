@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+import posts.validators
 from posts.models import Post, PostImage, Comment
 
 
@@ -19,3 +20,8 @@ class PostCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'
+
+
+class UsernameChangeSerializer(serializers.Serializer):
+    """user's username serializer for UserViewSet"""
+    username = serializers.CharField(max_length=150, validators=[posts.validators.validate_username])
