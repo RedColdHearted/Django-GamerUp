@@ -1,4 +1,5 @@
 import os
+from datetime import datetime, timedelta, timezone
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -6,6 +7,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, PermissionsMixin, BaseUserManager
 
 from app.utils import get_profile_image_upload_path, get_random_profile_picture, is_not_default_pic
+from app.exceptions import UserUsernameException
 
 
 class UserAccountManager(BaseUserManager):
@@ -36,6 +38,7 @@ class UserAccountManager(BaseUserManager):
 
 class UserAccount(AbstractUser, PermissionsMixin):
     username = models.CharField(max_length=255)
+    username_last_updated_at = models.DateTimeField(auto_now=True, blank=True)
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=False)
@@ -60,7 +63,18 @@ class UserAccount(AbstractUser, PermissionsMixin):
         refresh = RefreshToken.for_user(self)
         return str(refresh.access_token)
 
+    def set_username(self, new_username):
+        """Set a username if 3 days have passed since the username was changed"""
+        current_date = datetime.now(timezone.utc)
+        difference = current_date - self.username_last_updated_at
+        if difference < timedelta(days=3):
+            raise UserUsernameException('less than 3 days have passed since the username was changed')
+        else:
+            self.username = new_username
+            self.save()
+
     def set_image(self, new_image):
+        """Set a new user image and delete old if it not a default"""
         old_avatar_path = self.image.path if self.image else None
         old_avatar_name = self.image.name.split('/')[1] if self.image else None
         self.image = new_image
@@ -69,6 +83,7 @@ class UserAccount(AbstractUser, PermissionsMixin):
             os.remove(old_avatar_path)
 
     def get_image(self):
+        """Get user image"""
         return self.image
 
     def get_full_name(self):
