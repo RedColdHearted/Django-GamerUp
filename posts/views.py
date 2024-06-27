@@ -158,7 +158,6 @@ class CommentViewSet(mixins.CreateModelMixin,
                      ViewsCounterMixin,
                      LikeMixin
                      ):
-    # FIXME: change update mixin to not allow edit PostComment.user and PostComment.user_post fields
     queryset = Comment.objects.all()
     serializer_class = PostCommentSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
