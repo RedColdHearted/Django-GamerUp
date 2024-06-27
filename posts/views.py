@@ -6,20 +6,41 @@ from rest_framework.response import Response
 from django.http import HttpResponse
 
 from accounts.serializers import CustomUserCreateSerializer
-from posts.serializers import PostSerializer, PostPicSerializer, PostCommentSerializer
+from posts.serializers import PostSerializer, PostPicSerializer, PostCommentSerializer, UsernameChangeSerializer
 from posts.models import UserAccount, Post, PostImage, Comment
 from posts.mixins import LikeMixin, ViewsCounterMixin
 from app.permissions import IsOwnerOrReadOnly
 
 
-# TODO: update username, documentation and unittests
+# TODO: unittests
 class UserViewSet(mixins.RetrieveModelMixin,
-                  mixins.UpdateModelMixin,
                   viewsets.GenericViewSet
                   ):
     queryset = UserAccount.objects.all()
     serializer_class = CustomUserCreateSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    # TODO: documentation
+    @action(detail=True, methods=['post'], url_path='username')
+    def change_username(self, request, pk=None):
+        """
+        Update a model instance.
+        """
+        user = self.get_object()
+
+        if user.id == request.user.id:
+            serializer = UsernameChangeSerializer(data=request.data)
+            if serializer.is_valid(raise_exception=True):
+                username = serializer.validated_data['username']
+                try:
+                    user.set_username(username)
+                    return Response({'detail': f'new username {username}'}, status=status.HTTP_200_OK)
+                except Exception as err:
+                    return Response({'error': err},
+                                    status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_403_FORBIDDEN)
 
     @action(detail=True, methods=['get', 'post'], url_path='avatar')
     def change_avatar(self, request, pk=None):
@@ -115,7 +136,7 @@ class PostViewSet(mixins.CreateModelMixin,
         Headers - {Authorization: JWT <access token>}
         """
         instance = self.get_object()
-        instance.delete()
+        self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=['get'], detail=True)
