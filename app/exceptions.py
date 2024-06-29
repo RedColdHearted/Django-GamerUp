@@ -1,4 +1,4 @@
-class UserUsernameException(Exception):
+class UsernameException(Exception):
     pass
 
 
