@@ -1,9 +1,13 @@
+import os
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from django.urls import reverse
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 from accounts.serializers import CustomUserCreateSerializer
+from app.utils import is_not_default_pic
 from posts.tests.setup_fabric import SetUpFabric
 
 
@@ -18,6 +22,9 @@ class UsersViewSetTests(APITestCase, SetUpFabric):
 
         self.user1_change_username_url = reverse('users-change-username', kwargs={'pk': self.user1.pk})
         self.user2_change_username_url = reverse('users-change-username', kwargs={'pk': self.user2.pk})
+
+        self.user1_change_avatar_url = reverse('users-change-avatar', kwargs={'pk': self.user1.pk})
+        self.user2_change_avatar_url = reverse('users-change-avatar', kwargs={'pk': self.user2.pk})
 
     def test_detail(self):
         """test: get users by id"""
@@ -55,6 +62,25 @@ class UsersViewSetTests(APITestCase, SetUpFabric):
         response = self.client.post(self.user1_change_username_url, data=data2)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    # TODO: unittests
     def test_change_avatar(self):
-        pass
+        image_path = os.path.join(os.path.dirname(__file__), 'files', 'test_image.jpg')
+
+        with open(image_path, 'rb') as img:
+            image_data = img.read()
+            uploaded_image = SimpleUploadedFile('test_image.png', image_data, content_type='image/jpg')
+            data = {'avatar': uploaded_image}
+
+            # user1
+            self.user1.in_test_api_auth(self.client, self.token1)
+            response = self.client.post(self.user1_change_avatar_url, data, format='multipart')
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+            # user2
+            self.user1.in_test_api_auth(self.client, self.token1)
+            response = self.client.post(self.user2_change_avatar_url, data, format='multipart')
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+            self.user1.refresh_from_db()
+            temp_path = self.user1.image.path
+            if is_not_default_pic(temp_path):
+                os.remove(temp_path)
