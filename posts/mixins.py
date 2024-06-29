@@ -19,16 +19,8 @@ class LikeMixin(generics.GenericAPIView):
         """
         obj = self.get_object()
         user = request.user
-        if user in obj.liked_by.all():
-            obj.liked_by.remove(user)
-            obj.like_counter -= 1
-            message = 'like removed'
-        else:
-            obj.liked_by.add(user)
-            obj.like_counter += 1
-            message = 'liked'
-        obj.save()
-        return Response({'status': 'success', 'message': message, 'like_counter': obj.like_counter})
+        message, like_counter = obj.like_by_user(user)
+        return Response({'status': 'success', 'message': message, 'like_counter': like_counter})
 
 
 class ViewsCounterMixin(generics.GenericAPIView):

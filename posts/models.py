@@ -9,7 +9,7 @@ from posts.validators import validate_zero_or_more
 
 class Post(models.Model):
     class Meta:
-        ordering = ['created_at']
+        ordering = ['created_at', 'views']
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(UserAccount, on_delete=models.CASCADE)
@@ -22,6 +22,20 @@ class Post(models.Model):
 
     def __str__(self):
         return f"Post({self.id})"
+
+    def like_by_user(self, user):
+        """Putting like for model if user not in many-to-many table or disabling like if user in it"""
+        if user in self.liked_by.all():
+            self.liked_by.remove(user)
+            self.like_counter -= 1
+            message = 'like removed'
+        else:
+            self.liked_by.add(user)
+            self.like_counter += 1
+            message = 'liked'
+        self.save()
+
+        return message, self.like_counter
 
 
 # TODO: refactor name
@@ -49,3 +63,17 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"Comment({self.id})"
+
+    def like_by_user(self, user):
+        """Putting like for model if user not in many-to-many table or disabling like if user in it"""
+        if user in self.liked_by.all():
+            self.liked_by.remove(user)
+            self.like_counter -= 1
+            message = 'like removed'
+        else:
+            self.liked_by.add(user)
+            self.like_counter += 1
+            message = 'liked'
+        self.save()
+
+        return message, self.like_counter
