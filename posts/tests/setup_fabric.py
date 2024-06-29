@@ -25,6 +25,7 @@ class SetUpFabric:
             password='password123',
             is_active=True,
             username_last_updated_at=self.aware_datetime,
+            # image='/default_images/pic4'
         )
         self.user2 = UserAccount(
             username='username2',
