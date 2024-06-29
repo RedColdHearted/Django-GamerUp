@@ -15,7 +15,6 @@ class CommentsViewSetTests(APITestCase, SetUpFabric):
         self.setup_tokens()
         self.setup_posts()
         self.setup_comments()
-        self.post2.refresh_from_db()
 
         self.create_url = reverse('comments-list')
         self.comment1_detail_url = reverse('comments-detail', kwargs={'pk': self.comment1.pk})
@@ -28,7 +27,7 @@ class CommentsViewSetTests(APITestCase, SetUpFabric):
         self.views1_url = reverse('comments-views-counter', kwargs={'pk': self.comment1.pk})
         self.views2_url = reverse('comments-views-counter', kwargs={'pk': self.comment2.pk})
 
-    def test_adetail(self):
+    def test_detail(self):
         """test: get comment1 by id"""
         response = self.client.get(self.comment1_detail_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK,)
