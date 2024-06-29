@@ -5,6 +5,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from django.db import models
 from django.contrib.auth.models import AbstractUser, PermissionsMixin, BaseUserManager
+from django.utils.timezone import now
 
 from app.utils import get_profile_image_upload_path, get_random_profile_picture, is_not_default_pic
 from app.exceptions import UsernameException
@@ -38,7 +39,7 @@ class UserAccountManager(BaseUserManager):
 
 class UserAccount(AbstractUser, PermissionsMixin):
     username = models.CharField(max_length=255)
-    username_last_updated_at = models.DateTimeField(auto_now=True, blank=True)
+    username_last_updated_at = models.DateTimeField(default=now, blank=True)
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=False)
