@@ -12,7 +12,6 @@ from posts.mixins import LikeMixin, ViewsCounterMixin
 from app.permissions import IsOwnerOrReadOnly
 
 
-# TODO: unittests
 class UserViewSet(mixins.RetrieveModelMixin,
                   viewsets.GenericViewSet
                   ):
