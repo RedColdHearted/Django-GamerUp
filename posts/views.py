@@ -72,8 +72,8 @@ class UserViewSet(mixins.RetrieveModelMixin,
                 if not file:
                     return Response({"detail": "No file provided"}, status=status.HTTP_400_BAD_REQUEST)
                 user.set_image(file)
-                return Response({"detail": "avatar set"}, status=status.HTTP_200_OK)
-            return Response({"detail": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"detail": "avatar set"}, status=status.HTTP_201_CREATED)
+            return Response({"detail": "Bad request"}, status=status.HTTP_403_FORBIDDEN)
 
         if request.method == 'GET':
             image = user.get_image()
