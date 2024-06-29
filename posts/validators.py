@@ -19,7 +19,7 @@ def validate_username(value):
     """validate username"""
     if len(value) < 8 or len(value) > 150:
         raise serializers.ValidationError(
-            _("username must be between 3 and 150 characters long")
+            _("username must be between 8 and 150 characters long")
         )
 
     if not re.match(r'^\w+$', value):
