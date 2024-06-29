@@ -20,14 +20,21 @@ class UserViewSet(mixins.RetrieveModelMixin,
     serializer_class = CustomUserCreateSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
-    # TODO: documentation
     @action(detail=True, methods=['post'], url_path='username')
     def change_username(self, request, pk=None):
         """
-        Update a model instance.
+        Update a User's username
+        api/v1/users/<user_id>/username/
+        Methods: POST
+        if POST:
+            Headers - {
+                    Authorization: JWT <access token>
+                }
+            Body - {
+                    "username": <new_username>
+                }
         """
         user = self.get_object()
-
         if user.id == request.user.id:
             serializer = UsernameChangeSerializer(data=request.data)
             if serializer.is_valid(raise_exception=True):
@@ -36,7 +43,7 @@ class UserViewSet(mixins.RetrieveModelMixin,
                     user.set_username(username)
                     return Response({'detail': f'new username {username}'}, status=status.HTTP_200_OK)
                 except Exception as err:
-                    return Response({'error': err},
+                    return Response({'error': str(err)},
                                     status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
