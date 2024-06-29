@@ -7,7 +7,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, PermissionsMixin, BaseUserManager
 
 from app.utils import get_profile_image_upload_path, get_random_profile_picture, is_not_default_pic
-from app.exceptions import UserUsernameException
+from app.exceptions import UsernameException
 
 
 class UserAccountManager(BaseUserManager):
@@ -68,7 +68,7 @@ class UserAccount(AbstractUser, PermissionsMixin):
         current_date = datetime.now(timezone.utc)
         difference = current_date - self.username_last_updated_at
         if difference < timedelta(days=3):
-            raise UserUsernameException('less than 3 days have passed since the username was changed')
+            raise UsernameException('less than 3 days have passed since the username was changed')
         else:
             self.username = new_username
             self.save()
