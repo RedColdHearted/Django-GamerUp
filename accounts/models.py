@@ -76,12 +76,14 @@ class UserAccount(AbstractUser, PermissionsMixin):
 
     def set_image(self, new_image):
         """Set a new user image and delete old if it not a default"""
-        old_avatar_path = self.image.path if self.image else None
-        old_avatar_name = self.image.name.split('/')[1] if self.image else None
+        if self.image:
+            old_avatar_path = self.image.path
+            old_avatar_name = self.image.name.split('/')[1]
+            if is_not_default_pic(old_avatar_name):
+                os.remove(old_avatar_path)
+
         self.image = new_image
         self.save()
-        if is_not_default_pic(old_avatar_name):
-            os.remove(old_avatar_path)
 
     def get_image(self):
         """Get user image"""
