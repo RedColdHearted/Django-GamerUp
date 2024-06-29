@@ -1,9 +1,17 @@
+from datetime import datetime
+
+import pytz
+
+from django.utils import timezone
+
 from accounts.models import UserAccount
 from app.exceptions import CommentTestCaseException, PostTestCaseException, TokenTestCaseException
 from posts.models import Post, Comment
 
 
 class SetUpFabric:
+    aware_datetime = timezone.make_aware(datetime(year=2000, day=1, month=1), pytz.UTC)
+
     def _hasattrs(self, name1: str, name2: str) -> bool:
         """This function need to check attrs before setup"""
         return hasattr(self, name1) and hasattr(self, name2)
@@ -16,6 +24,7 @@ class SetUpFabric:
             name='name1',
             password='password123',
             is_active=True,
+            username_last_updated_at=self.aware_datetime,
         )
         self.user2 = UserAccount(
             username='username2',
@@ -23,6 +32,7 @@ class SetUpFabric:
             name='name2',
             password='password123',
             is_active=True,
+            username_last_updated_at=self.aware_datetime,
         )
         self.user1.save()
         self.user2.save()
