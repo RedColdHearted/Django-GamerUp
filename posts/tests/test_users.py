@@ -37,6 +37,7 @@ class UsersViewSetTests(APITestCase, SetUpFabric):
         self.assertDictEqual(response.data, CustomUserCreateSerializer(self.user2).data)
 
     def test_change_username(self):
+        """test: change username"""
         # user1
         self.user1.in_test_api_auth(self.client, self.token1)
         data1 = {'username': 'noob1337'}
@@ -63,6 +64,7 @@ class UsersViewSetTests(APITestCase, SetUpFabric):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_change_avatar(self):
+        """test: upload user's avatar trough api"""
         image_path = os.path.join(os.path.dirname(__file__), 'files', 'test_image.jpg')
 
         with open(image_path, 'rb') as img:
